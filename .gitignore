@@ -1,0 +1,6 @@
+.vscode
+editor.exe
+editor.o
+raycaster.exe
+raycaster.o
+map.bin
