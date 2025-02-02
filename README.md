@@ -7,3 +7,4 @@ A basic raycaster and map editor.
 - [x] Create the raycaster.
 - [x] Movement and bobbing.
 - [ ] Fix enemy rendering.
+- [ ] Reduce fish-eye effect.
