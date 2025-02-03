@@ -80,6 +80,7 @@ int main(void) {
 
             // Send casts for each column
             Vector2 last_enemy_pos = {-2, -2};
+            float last_enemy_scale = 0;
             for (int x = 0; x < screen_length; x++) {
 
                 float angle = x * (PI / 180) * FOV / screen_length + (player_looking - PI / 6);
@@ -90,17 +91,16 @@ int main(void) {
 
                 // Draw enemy (if any)
                 if (cast.enemy.distance != -1 && cast.enemy.position.x != last_enemy_pos.x && cast.enemy.position.y != last_enemy_pos.y) {
-                    Vector2 enemy_pos = (Vector2) {
+                    last_enemy_pos = (Vector2) {
                         x,
                         screen_length / 2 - screen_length / cast.enemy.distance / 2 + bobbing_offset
                     };
-                    float enemy_scale = 1 / cast.enemy.distance * 3.5;
-                    if (last_enemy_pos.x != -1) {
-                        DrawTextureEx(angry, enemy_pos, 0, enemy_scale, WHITE);
-                    }
-                    last_enemy_pos = cast.enemy.position;
+                    last_enemy_scale = 1 / cast.enemy.distance * 3.5;
                 }
+            }
 
+            if (last_enemy_pos.x != -1) {
+                DrawTextureEx(angry, last_enemy_pos, 0, last_enemy_scale, WHITE);
             }
 
         EndDrawing();
