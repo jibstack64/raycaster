@@ -7,7 +7,6 @@
 #include "cast.h"
 
 #include "images/background.h"
-#include "images/angry.h"
 
 int main(void) {
 
@@ -20,6 +19,9 @@ int main(void) {
     InitWindow(screen_length, screen_length, screen_title);
     SetTargetFPS(60);
 
+    // Load textures
+    cell_load_textures();
+
     // Load images
     Image background_image = (Image) {
         .data = BACKGROUND_DATA,
@@ -29,14 +31,6 @@ int main(void) {
         .format = BACKGROUND_FORMAT
     };
     Texture background = LoadTextureFromImage(background_image);
-    Image angry_image = (Image) {
-        .data = ANGRY_DATA,
-        .width = ANGRY_WIDTH,
-        .height = ANGRY_HEIGHT,
-        .mipmaps = 1,
-        .format = ANGRY_FORMAT
-    };
-    Texture angry = LoadTextureFromImage(angry_image);
 
     // Track player position, looking, etc.
     Vector2 player_position = map_spawn(map);
@@ -79,36 +73,49 @@ int main(void) {
             DrawRectangle(0, screen_length / 2, screen_length, screen_length / 2, FLOOR_COLOUR);
 
             // Send casts for each column
-            Vector2 last_enemy_pos = {-2, -2};
-            float last_enemy_scale = 0;
             for (int x = 0; x < screen_length; x++) {
 
                 float angle = x * (PI / 180) * FOV / screen_length + (player_looking - PI / 6);
                 Cast cast = cast_from(player_position, angle, map);
-                if (cast.distance != 0 && cast.cell != EMPTY) {
-                    DrawLine(x, screen_length / 2 - screen_length / cast.distance / 2 + bobbing_offset, x, screen_length / 2 + screen_length / cast.distance / 2 + bobbing_offset, cell_colour(cast.cell));
+                
+                // Get the texture, if not any, skip
+                Texture2D *texture = cell_texture(cast.cell);
+                if (!texture) {
+                    continue;
                 }
+                
+                int y_pos = screen_length / 2 - screen_length / cast.distance / 2 + bobbing_offset;
+                int wall_height = screen_length / cast.distance;
 
-                // Draw enemy (if any)
-                if (cast.enemy.distance != -1 && cast.enemy.position.x != last_enemy_pos.x && cast.enemy.position.y != last_enemy_pos.y) {
-                    last_enemy_pos = (Vector2) {
-                        x,
-                        screen_length / 2 - screen_length / cast.enemy.distance / 2 + bobbing_offset
-                    };
-                    last_enemy_scale = 1 / cast.enemy.distance * 3.5;
-                }
-            }
+                // Get the position in the texture to draw
+                float wall_hit_pos = (cast.normal.x != 0) ? cast.final.y : cast.final.x;
+                int texture_x = (int)(wall_hit_pos * texture->width) % texture->width;
+                if (texture_x < 0) texture_x += texture->width;
 
-            if (last_enemy_pos.x != -1) {
-                DrawTextureEx(angry, last_enemy_pos, 0, last_enemy_scale, WHITE);
+                Rectangle source_rect = {
+                    texture_x,
+                    0,
+                    1,
+                    texture->height
+                };
+
+                Rectangle to_rect = {
+                    x,
+                    y_pos,
+                    1,
+                    wall_height
+                };
+
+                if (cast.distance != 0)
+                    DrawTexturePro(*texture, source_rect, to_rect, (Vector2) {0, 0}, 0, WHITE);
             }
 
         EndDrawing();
     }
 
     // Clean up
+    cell_unload_textures();
     UnloadTexture(background);
-    UnloadTexture(angry);
 
     CloseWindow();
 

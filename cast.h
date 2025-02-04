@@ -7,14 +7,10 @@
 #include "config.h"
 #include "map.h"
 
-typedef struct EnemyCast {
-    float distance;
-    Vector2 position;
-} EnemyCast;
-
 typedef struct Cast {
     float distance;
-    EnemyCast enemy;
+    Vector2 normal;
+    Vector2 final;
     Cell cell;
 } Cast;
 
@@ -47,9 +43,6 @@ Cast cast_from(Vector2 position, float angle, Map map) {
     int hit = 0;
     int side = 0;
 
-    // Single enemy hit
-    EnemyCast enemy = { -1 };
-
     while (hit == 0 && (map_pos.x >= 0 && map_pos.x < map.width) && (map_pos.y >= 0 && map_pos.y < map.height)) {
         if (side_dist.x < side_dist.y) {
             side_dist.x += delta_dist.x;
@@ -60,14 +53,9 @@ Cast cast_from(Vector2 position, float angle, Map map) {
             map_pos.y += step.y;
             side = 1;
         }
-        if (map_get(map, map_pos.x, map_pos.y) != EMPTY && map_get(map, map_pos.x, map_pos.y) != SPAWN && map_get(map, map_pos.x, map_pos.y) != ENEMY) {
+        if (map_get(map, map_pos.x, map_pos.y) != EMPTY && map_get(map, map_pos.x, map_pos.y) != SPAWN) {
             hit = 1;
         }
-        if (map_get(map, map_pos.x, map_pos.y) == ENEMY)
-            enemy = (EnemyCast) {
-                .distance = sqrt(pow(position.x - map_pos.x, 2) + pow(position.y - map_pos.y, 2)),
-                .position = map_pos
-            };
     }
 
     float perp_dist;
@@ -79,7 +67,11 @@ Cast cast_from(Vector2 position, float angle, Map map) {
 
     return (Cast) {
         .distance = perp_dist,
-        .enemy = enemy,
+        .normal = side == 0 ? (Vector2) { step.x, 0 } : (Vector2) { 0, step.y },
+        .final = (Vector2) {
+            position.x + perp_dist * direction.x,
+            position.y + perp_dist * direction.y
+        },
         .cell = map_get(map, map_pos.x, map_pos.y)
     };
 }
