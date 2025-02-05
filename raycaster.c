@@ -45,13 +45,23 @@ int main(void) {
         // Basic movement
         float frame_time = GetFrameTime();
         if (IsKeyDown(KEY_W)) {
-            player_position.x += move_speed * cos(player_looking) * frame_time;
-            player_position.y += move_speed * sin(player_looking) * frame_time;
+            float move_to_x = player_position.x + move_speed * cos(player_looking) * frame_time; 
+            float move_to_y = player_position.y + move_speed * sin(player_looking) * frame_time;
+            int floored_x = floor(move_to_x), floored_y = floor(move_to_y);
+            if (map_get(map, floored_x, floored_y) == EMPTY || map_get(map, floored_x, floored_y) == SPAWN) {
+                player_position.x = move_to_x;
+                player_position.y = move_to_y;
+            }
             bob_tracker += bob_amount * frame_time;
         }
         if (IsKeyDown(KEY_S)) {
-            player_position.x -= move_speed * cos(player_looking) * frame_time;
-            player_position.y -= move_speed * sin(player_looking) * frame_time;
+            float move_to_x = player_position.x - move_speed * cos(player_looking) * frame_time;
+            float move_to_y = player_position.y - move_speed * sin(player_looking) * frame_time;
+            int floored_x = floor(move_to_x), floored_y = floor(move_to_y);
+            if (map_get(map, floored_x, floored_y) == EMPTY || map_get(map, floored_x, floored_y) == SPAWN) {
+                player_position.x = move_to_x;
+                player_position.y = move_to_y;
+            }
             bob_tracker += bob_amount * frame_time;
         }
         if (IsKeyDown(KEY_A)) {
@@ -60,6 +70,7 @@ int main(void) {
         if (IsKeyDown(KEY_D)) {
             player_looking += look_speed * frame_time;
         }
+        player_looking += GetMouseDelta().x * look_speed * frame_time;
 
         BeginDrawing();
 

@@ -8,6 +8,8 @@ A basic raycaster and map editor.
 - [x] Movement and bobbing.
 - [x] ~~Fix enemy rendering~~ Remove enemies altogether.
 - [x] Add wall textures.
+- [x] Add collisions.
+- [x] Rotation using mouse.
 - [ ] Reduce fish-eye effect.
 
 ![image](https://github.com/user-attachments/assets/6c0c888c-e607-42b2-804a-0504a4cea908)
