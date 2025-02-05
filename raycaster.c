@@ -39,6 +39,7 @@ int main(void) {
             look_speed = 1.5,
             bob_tracker = 0,
             bob_amount = 10;
+    float   background_rotation = 0;
 
     while (!WindowShouldClose()) {
 
@@ -78,9 +79,16 @@ int main(void) {
             
             // WOOOH!
             float bobbing_offset = sin(bob_tracker) * 5;
+            background_rotation += frame_time * 10;
 
             // Draw floor and ceiling
-            DrawTexture(background, 0, 0, WHITE);
+            DrawTexturePro(
+                background,
+                (Rectangle) { 0, 0, background.width, background.height },
+                (Rectangle) { 0, 0, background.width * 5, background.height * 5},
+                (Vector2) { background.width / 2, background.height / 2 },
+                background_rotation,
+                WHITE);
             DrawRectangle(0, screen_length / 2, screen_length, screen_length / 2, FLOOR_COLOUR);
 
             // Send casts for each column
