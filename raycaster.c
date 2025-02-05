@@ -22,6 +22,9 @@ int main(void) {
     // Load textures
     cell_load_textures();
 
+    // Lock the cursor
+    DisableCursor();
+
     // Load images
     Image background_image = (Image) {
         .data = BACKGROUND_DATA,
@@ -65,12 +68,10 @@ int main(void) {
             }
             bob_tracker += bob_amount * frame_time;
         }
-        if (IsKeyDown(KEY_A)) {
+        if (IsKeyDown(KEY_A))
             player_looking -= look_speed * frame_time;
-        }
-        if (IsKeyDown(KEY_D)) {
+        if (IsKeyDown(KEY_D))
             player_looking += look_speed * frame_time;
-        }
         player_looking += GetMouseDelta().x * look_speed * frame_time;
 
         BeginDrawing();

@@ -6,5 +6,6 @@
 #include "images/brick.h"
 #include "images/concrete.h"
 #include "images/metal.h"
+#include "images/missing.h"
 
 #endif

@@ -11,10 +11,11 @@ typedef enum Cell {
     EMPTY,
     WALL_BRICK,
     WALL_CONCRETE,
-    WALL_METAL
+    WALL_METAL,
+    WALL_CUSTOM
 } Cell;
 
-static Texture2D g_textures[3] = { 0 };
+static Texture2D g_textures[4] = { 0 };
 
 void cell_load_textures() {
     g_textures[0] = LoadTextureFromImage((Image) {
@@ -38,6 +39,21 @@ void cell_load_textures() {
         .mipmaps = 1,
         .format = METAL_FORMAT
     });
+    // Attempt to load custom texture
+    if      (FileExists("custom.png"))
+        g_textures[3] = LoadTexture("custom.png");
+    else if (FileExists("custom.jpg"))
+        g_textures[3] = LoadTexture("custom.jpg");
+    else if (FileExists("custom.bmp"))
+        g_textures[3] = LoadTexture("custom.bmp");
+    else
+        g_textures[3] = LoadTextureFromImage((Image) {
+            .data = MISSING_DATA,
+            .width = MISSING_WIDTH,
+            .height = MISSING_HEIGHT,
+            .mipmaps = 1,
+            .format = MISSING_FORMAT
+        });
 }
 
 void cell_unload_textures() {
@@ -58,6 +74,8 @@ Texture2D *cell_texture(Cell cell) {
             return &(g_textures[1]);
         case WALL_METAL:
             return &(g_textures[2]);
+        case WALL_CUSTOM:
+            return &(g_textures[3]);
         default:
             return NULL;
     }

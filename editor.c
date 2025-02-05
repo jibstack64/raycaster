@@ -46,6 +46,8 @@ int main(void) {
         if (IsKeyPressed(KEY_THREE))    
             paint = WALL_METAL;
         if (IsKeyPressed(KEY_FOUR))
+            paint = WALL_CUSTOM;
+        if (IsKeyPressed(KEY_FIVE))
             paint = SPAWN;
         if (IsKeyPressed(KEY_ZERO))
             paint = EMPTY;
