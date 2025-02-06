@@ -38,7 +38,7 @@ int main(void) {
     // Track player position, looking, etc.
     Vector2 player_position = map_spawn(map);
     float   player_looking = 0,
-            move_speed = 1,
+            move_speed = 1.5,
             look_speed = 1.5,
             bob_tracker = 0,
             bob_amount = 10;

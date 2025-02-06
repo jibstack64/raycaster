@@ -21,6 +21,9 @@ Cell map_get(Map map, int x, int y) {
 }
 
 void map_set(Map map, int x, int y, Cell cell) {
+    if (x < 0 || x >= map.width || y < 0 || y >= map.height) {
+        return;
+    }
     map.content[y * map.width + x] = cell;
 }
 
@@ -56,13 +59,17 @@ Map map_new(int width, int height) {
     return map;
 }
 
+void map_free(Map map) {
+    free((int *)(map.content) - 2);
+}
+
 Map map_load(const char *filename) {
     Map map = { 0 };
 
     // Get `filename`'s contents
     FILE *file = fopen(filename, "rb");
     if (!file) {
-        return map_new(10, 10);
+        return map_new(16, 16);
     }
 
     fseek(file, 0, SEEK_END);
@@ -83,6 +90,27 @@ Map map_load(const char *filename) {
     return map;
 }
 
+Map map_resize(Map map, int amount) {
+    int new_width = map.width + amount;
+    int new_height = map.height + amount;
+
+    if (new_width <= 0 || new_height <= 0) {
+        return map;
+    }
+
+    Map new_map = map_new(new_width, new_height);
+
+    for (int y = 0; y < (map.height < new_height ? map.height : new_height); y++) {
+        for (int x = 0; x < (map.width < new_width ? map.width : new_width); x++) {
+            map_set(new_map, x, y, map_get(map, x, y));
+        }
+    }
+
+    map_free(map);
+
+    return new_map;
+}
+
 bool map_save(const char *filename, Map map) {
 
     // Open and save
@@ -98,10 +126,6 @@ bool map_save(const char *filename, Map map) {
     fclose(file);
 
     return true;
-}
-
-void map_free(Map map) {
-    free(map.content - (sizeof(int) * 2));
 }
 
 #endif

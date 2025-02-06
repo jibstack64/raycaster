@@ -32,6 +32,16 @@ int main(void) {
 
     while (!WindowShouldClose()) {
 
+        // Map resizing
+        if (IsKeyPressed(KEY_EIGHT)) {
+            map = map_resize(map, -1);
+            cell_size = screen_length / map.width;
+        }
+        if (IsKeyPressed(KEY_NINE)) {
+            map = map_resize(map, 1);
+            cell_size = screen_length / map.width;
+        }
+
         // Get user input
         Vector2 mouse_position = GetMousePosition();
         selected = (Vector2) {
