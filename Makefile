@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -include images.h -O2 -Wall -std=c99
-LDFLAGS = -lraylib -lopengl32 -lgdi32 -lwinmm -mwindows
+LDFLAGS = -lraylib -lopengl32 -lgdi32 -lwinmm -llua53
 
 SRC_EDITOR = editor.c
 SRC_RAYCASTER = raycaster.c

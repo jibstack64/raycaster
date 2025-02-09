@@ -1,10 +1,12 @@
 
 #include <stdlib.h>
 #include <raylib.h>
+#include <pthread.h>
 #include <math.h>
 #include "config.h"
 #include "map.h"
 #include "cast.h"
+#include "mod.h"
 
 #include "images/background.h"
 
@@ -15,6 +17,30 @@ int main(void) {
 
     const int   screen_length = SCREEN_LENGTH;
     const char  *screen_title = "raycaster";
+
+    // Track player position, looking, etc.
+    Vector2 player_position = map_spawn(map);
+    float   player_looking = 0,
+            move_speed = 1.5,
+            look_speed = 1.5,
+            bob_tracker = 0,
+            bob_amount = 10;
+    float   background_rotation = 0;
+    bool    running = true;
+
+    // For Lua BindUpdateFunction
+    ModUpdateData update_data = (ModUpdateData) {
+        .Running = &running,
+        .PlayerX = &player_position.x,
+        .PlayerY = &player_position.y,
+        .PlayerLooking = &player_looking,
+        .MapWidth = map.width,
+        .MapHeight = map.height,
+        .MapData = map.content
+    };
+
+    // Initialise lua
+    lua_State *L = mod_init_file("map.lua");
 
     InitWindow(screen_length, screen_length, screen_title);
     SetTargetFPS(60);
@@ -35,16 +61,7 @@ int main(void) {
     };
     Texture background = LoadTextureFromImage(background_image);
 
-    // Track player position, looking, etc.
-    Vector2 player_position = map_spawn(map);
-    float   player_looking = 0,
-            move_speed = 1.5,
-            look_speed = 1.5,
-            bob_tracker = 0,
-            bob_amount = 10;
-    float   background_rotation = 0;
-
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose() && running) {
 
         // Basic movement
         float frame_time = GetFrameTime();
@@ -131,11 +148,21 @@ int main(void) {
             }
 
         EndDrawing();
+
+        // Lua update
+        update_data.DeltaTime = frame_time;
+        mod_update(L, update_data);
     }
 
     // Clean up
     cell_unload_textures();
     UnloadTexture(background);
+
+    // Wooh
+    mod_close(L);
+
+    // I keep forgetting to do this...
+    map_free(map);
 
     CloseWindow();
 
